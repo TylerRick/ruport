@@ -4,6 +4,8 @@
 #
 # This is free software. Please see the LICENSE and COPYING files for details.
 
+require 'facets/kernel/instance_class'
+require 'facets/kernel/returning'
 
 # This class implements the core controller for Ruport's formatting system.
 # It is designed to implement the low level tools necessary to build report
@@ -435,7 +437,14 @@ class Ruport::Controller
       }
       rend.run
       rend.formatter.save_output(rend.options.file) if rend.options.file
-      return rend.formatter.output
+
+      returning rend.formatter.output do |output|
+        output.instance_class do
+          define_method(:controller) do
+            rend
+          end
+        end
+      end
     end
 
     # Allows you to set class-wide default options.
